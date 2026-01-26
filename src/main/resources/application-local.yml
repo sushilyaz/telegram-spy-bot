@@ -1,0 +1,30 @@
+# Локальная разработка - НЕ использовать в продакшене!
+# Запуск: ./gradlew bootRun --args='--spring.profiles.active=local'
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spybot
+    username: spybot
+    password: devpassword
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# Для локальной разработки эти значения должны быть заданы через переменные окружения
+# или .env файл. Ниже приведены placeholder'ы.
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN:your-token-here}
+    username: ${TELEGRAM_BOT_USERNAME:your-bot-username}
+
+encryption:
+  # Тестовый ключ - ЗАМЕНИТЕ НА СВОЙ!
+  secret-key: ${ENCRYPTION_SECRET_KEY:dGVzdC1rZXktMzItYnl0ZXMtZm9yLWRldg==}
+
+logging:
+  level:
+    com.spybot: DEBUG
+    org.hibernate.SQL: DEBUG
