@@ -30,7 +30,7 @@ public class BusinessMessageHandler {
     public void handle(Message message) {
         String connectionId = message.businessConnectionId();
 
-        if (connectionId == null) {
+        if (connectionId == null || connectionId.isBlank()) {
             log.debug("action=skip_message, reason=no_connection_id");
             return;
         }
@@ -86,9 +86,10 @@ public class BusinessMessageHandler {
                 PhotoSize[] photos = message.photo();
                 if (photos != null && photos.length > 0) {
                     yield Arrays.stream(photos)
-                            .max(Comparator.comparingInt(PhotoSize::fileSize))
+                            .filter(p -> p.fileSize() != null)
+                            .max(Comparator.comparingLong(PhotoSize::fileSize))
                             .map(PhotoSize::fileId)
-                            .orElse(null);
+                            .orElse(photos[photos.length - 1].fileId());
                 }
                 yield null;
             }

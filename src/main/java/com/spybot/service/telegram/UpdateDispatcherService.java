@@ -1,9 +1,9 @@
 package com.spybot.service.telegram;
 
-import com.pengrad.telegrambot.model.BusinessConnection;
-import com.pengrad.telegrambot.model.BusinessMessagesDeleted;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.business.BusinessConnection;
+import com.pengrad.telegrambot.model.business.BusinessMessageDeleted;
 import com.spybot.service.handler.BusinessConnectionHandler;
 import com.spybot.service.handler.BusinessMessageHandler;
 import com.spybot.service.handler.CommandHandler;
@@ -33,7 +33,7 @@ public class UpdateDispatcherService {
             BusinessConnection businessConnection = update.businessConnection();
             Message businessMessage = update.businessMessage();
             Message editedBusinessMessage = update.editedBusinessMessage();
-            BusinessMessagesDeleted deletedBusinessMessages = update.deletedBusinessMessages();
+            BusinessMessageDeleted deletedBusinessMessages = update.deletedBusinessMessages();
             Message directMessage = update.message();
 
             if (businessConnection != null) {

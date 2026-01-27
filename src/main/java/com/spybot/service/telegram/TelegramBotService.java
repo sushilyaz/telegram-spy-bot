@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.LinkPreviewOptions;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendDocument;
@@ -71,7 +72,7 @@ public class TelegramBotService {
         try {
             SendMessage request = new SendMessage(chatId, text)
                     .parseMode(ParseMode.HTML)
-                    .disableWebPagePreview(true);
+                    .linkPreviewOptions(new LinkPreviewOptions().isDisabled(true));
 
             SendResponse response = bot.execute(request);
             if (response.isOk()) {

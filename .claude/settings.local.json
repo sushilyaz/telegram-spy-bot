@@ -3,7 +3,18 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:core.telegram.org)"
+      "WebFetch(domain:core.telegram.org)",
+      "WebFetch(domain:mvnrepository.com)",
+      "Bash(./gradlew clean build:*)",
+      "Bash(dir:*)",
+      "Bash(gradle wrapper:*)",
+      "Bash(./gradlew.bat clean:*)",
+      "Bash(./gradlew.bat:*)",
+      "Bash(xargs:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(unzip:*)",
+      "Bash(jar tf:*)",
+      "WebFetch(domain:javadoc.io)"
     ]
   }
 }

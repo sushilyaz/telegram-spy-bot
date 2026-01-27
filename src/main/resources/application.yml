@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/spybot
     username: spybot
-    password: ${DB_PASSWORD:changeme}
+    password: ${DB_PASSWORD:devpassword}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -32,11 +32,11 @@ spring:
 
 telegram:
   bot:
-    token: ${TELEGRAM_BOT_TOKEN}
-    username: ${TELEGRAM_BOT_USERNAME}
+    token: ${TELEGRAM_BOT_TOKEN:8537512343:AAHfuzTWDUMdsZ5eDE6q9VBEUnDTX_bpo8Y}
+    username: ${TELEGRAM_BOT_USERNAME:shpion_test1_bot}
 
 encryption:
-  secret-key: ${ENCRYPTION_SECRET_KEY}
+  secret-key: ${ENCRYPTION_SECRET_KEY:MO9ttWahdQo+T4id4V9hs3SXMBv6JE4OkK26UTXoH64=}
 
 app:
   retention:

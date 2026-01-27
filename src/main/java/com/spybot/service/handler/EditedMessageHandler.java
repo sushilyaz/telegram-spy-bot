@@ -29,7 +29,7 @@ public class EditedMessageHandler {
     public void handle(Message editedMessage) {
         String connectionId = editedMessage.businessConnectionId();
 
-        if (connectionId == null) {
+        if (connectionId == null || connectionId.isBlank()) {
             log.debug("action=skip_edit, reason=no_connection_id");
             return;
         }

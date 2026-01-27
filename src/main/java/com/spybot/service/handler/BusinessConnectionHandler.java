@@ -1,7 +1,7 @@
 package com.spybot.service.handler;
 
-import com.pengrad.telegrambot.model.BusinessConnection;
 import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.model.business.BusinessConnection;
 import com.spybot.repository.BusinessConnectionRepository;
 import com.spybot.service.telegram.NotificationService;
 import lombok.RequiredArgsConstructor;

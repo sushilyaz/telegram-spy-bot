@@ -30,12 +30,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Telegram Bot API (pengrad library - supports Business API)
-    implementation 'com.github.pengrad:java-telegram-bot-api:7.11.0'
+    // https://github.com/pengrad/java-telegram-bot-api
+    implementation 'com.github.pengrad:java-telegram-bot-api:9.2.0'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.flywaydb:flyway-core:10.15.0'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql:10.15.0'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -48,13 +49,15 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+    // Source: https://mvnrepository.com/artifact/me.paulschwarz/spring-dotenv
+    implementation 'me.paulschwarz:spring-dotenv:5.1.0'
+
     // Apache Commons for utilities
     implementation 'org.apache.commons:commons-lang3:3.18.0'
     implementation 'commons-io:commons-io:2.16.1'
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
 }
 
 tasks.named('test') {

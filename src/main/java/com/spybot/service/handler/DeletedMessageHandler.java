@@ -1,6 +1,6 @@
 package com.spybot.service.handler;
 
-import com.pengrad.telegrambot.model.BusinessMessagesDeleted;
+import com.pengrad.telegrambot.model.business.BusinessMessageDeleted;
 import com.spybot.domain.entity.MessageEvent;
 import com.spybot.domain.entity.StoredMessage;
 import com.spybot.domain.enums.EventType;
@@ -27,7 +27,7 @@ public class DeletedMessageHandler {
     private final NotificationService notificationService;
 
     @Transactional
-    public void handle(BusinessMessagesDeleted deleted) {
+    public void handle(BusinessMessageDeleted deleted) {
         String connectionId = deleted.businessConnectionId();
         Long chatId = deleted.chat().id();
         Integer[] messageIdsArray = deleted.messageIds();

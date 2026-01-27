@@ -17,12 +17,12 @@ spring:
 # или .env файл. Ниже приведены placeholder'ы.
 telegram:
   bot:
-    token: ${TELEGRAM_BOT_TOKEN:your-token-here}
-    username: ${TELEGRAM_BOT_USERNAME:your-bot-username}
+    token: ${TELEGRAM_BOT_TOKEN:8537512343:AAHfuzTWDUMdsZ5eDE6q9VBEUnDTX_bpo8Y}
+    username: ${TELEGRAM_BOT_USERNAME:shpion_test1_bot}
 
 encryption:
   # Тестовый ключ - ЗАМЕНИТЕ НА СВОЙ!
-  secret-key: ${ENCRYPTION_SECRET_KEY:dGVzdC1rZXktMzItYnl0ZXMtZm9yLWRldg==}
+  secret-key: ${ENCRYPTION_SECRET_KEY:MO9ttWahdQo+T4id4V9hs3SXMBv6JE4OkK26UTXoH64=}
 
 logging:
   level:
