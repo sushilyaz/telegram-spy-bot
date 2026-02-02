@@ -36,7 +36,7 @@ telegram:
     username: ${TELEGRAM_BOT_USERNAME:shpion_test1_bot}
 
 encryption:
-  secret-key: ${ENCRYPTION_SECRET_KEY:MO9ttWahdQo+T4id4V9hs3SXMBv6JE4OkK26UTXoH64=}
+  secret-key: ${ENCRYPTION_SECRET_KEY:f7CK0qSTmTFoyIxETWZUqNpiT65+qoJeIKhEc+IU48c=}
 
 app:
   retention:
