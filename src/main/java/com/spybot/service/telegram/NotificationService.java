@@ -73,66 +73,6 @@ public class NotificationService {
     }
 
     @Async("notificationExecutor")
-    public void notifyViewOnceSaved(String connectionId, StoredMessage storedMessage) {
-        BusinessConnection connection = connectionRepository.findByConnectionId(connectionId).orElse(null);
-        if (connection == null) {
-            return;
-        }
-
-        String senderName = formatSenderName(storedMessage);
-
-        String notification = String.format("""
-                🔥 <b>Одноразовое сообщение сохранено!</b>
-
-                👤 <b>От:</b> %s
-                📎 <b>Тип:</b> %s
-                """, escapeHtml(senderName), getMediaTypeName(storedMessage.getMediaType()));
-
-        botService.sendTextMessage(connection.getUserChatId(), notification);
-
-        // Одноразовые медиа нужно скачать и отправить заново
-        if (storedMessage.getMediaFileId() != null) {
-            sendViewOnceMedia(connection.getUserChatId(), storedMessage, senderName);
-        }
-
-        log.info("action=view_once_notification_sent, connection_id={}", connectionId);
-    }
-
-    private void sendViewOnceMedia(Long chatId, StoredMessage message, String senderName) {
-        String fileId = message.getMediaFileId();
-        byte[] fileData = botService.downloadFile(fileId);
-
-        if (fileData == null) {
-            log.error("action=view_once_download_failed, file_id={}", fileId);
-            botService.sendTextMessage(chatId, "⚠️ Не удалось скачать медиа");
-            return;
-        }
-
-        String caption = "🔥 Одноразовое медиа от " + senderName;
-
-        switch (message.getMediaType()) {
-            case PHOTO -> botService.sendPhotoBytes(chatId, fileData, caption);
-            case VIDEO -> botService.sendVideoBytes(chatId, fileData, caption);
-            case VIDEO_NOTE -> botService.sendVideoNoteBytes(chatId, fileData);
-            case ANIMATION -> botService.sendAnimationBytes(chatId, fileData, caption);
-            default -> botService.sendDocumentBytes(chatId, fileData, caption, "media");
-        }
-    }
-
-    public void sendPremiumRequiredNotification(Long chatId) {
-        String message = """
-                ⭐ <b>Премиум функция</b>
-
-                Сохранение одноразовых сообщений доступно после приглашения 3 друзей.
-
-                /premium — подробнее
-                /referral — получить ссылку
-                """;
-
-        botService.sendTextMessage(chatId, message);
-    }
-
-    @Async("notificationExecutor")
     public void notifyMessageEdited(String connectionId, StoredMessage storedMessage,
                                     String oldText, String newText,
                                     String oldCaption, String newCaption) {

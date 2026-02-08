@@ -67,14 +67,10 @@ public class UpdateDispatcherService {
     private void handleDirectMessage(Message message) {
         String text = message.text();
         if (text != null) {
-            if (text.equals("/start") || text.startsWith("/start ")) {
+            if ("/start".equals(text)) {
                 commandHandler.handleStartCommand(message);
             } else if ("/help".equals(text)) {
                 commandHandler.handleHelpCommand(message);
-            } else if ("/premium".equals(text)) {
-                commandHandler.handlePremiumCommand(message);
-            } else if ("/referral".equals(text)) {
-                commandHandler.handleReferralCommand(message);
             }
         }
     }
