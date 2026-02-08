@@ -11,6 +11,10 @@ import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
+import com.pengrad.telegrambot.request.SendVideoNote;
+import com.pengrad.telegrambot.request.SendVoice;
+import com.pengrad.telegrambot.request.SendSticker;
+import com.pengrad.telegrambot.request.SendAnimation;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import com.spybot.config.TelegramBotConfig;
@@ -137,6 +141,53 @@ public class TelegramBotService {
         }
     }
 
+    public void sendVideoNote(Long chatId, String fileId) {
+        try {
+            SendVideoNote request = new SendVideoNote(chatId, fileId);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=video_note_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_video_note_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_video_note_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendVoice(Long chatId, String fileId, String caption) {
+        try {
+            SendVoice request = new SendVoice(chatId, fileId)
+                    .caption(caption)
+                    .parseMode(ParseMode.HTML);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=voice_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_voice_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_voice_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendSticker(Long chatId, String fileId) {
+        try {
+            SendSticker request = new SendSticker(chatId, fileId);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=sticker_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_sticker_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_sticker_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
     public byte[] downloadFile(String fileId) {
         try {
             GetFileResponse getFileResponse = bot.execute(new GetFile(fileId));
@@ -148,12 +199,100 @@ public class TelegramBotService {
             File file = getFileResponse.file();
             String fileUrl = bot.getFullFilePath(file);
 
+            log.debug("action=downloading_file, file_id={}, file_path={}", fileId, file.filePath());
+
             try (InputStream is = new URL(fileUrl).openStream()) {
-                return is.readAllBytes();
+                byte[] data = is.readAllBytes();
+                log.debug("action=file_downloaded, file_id={}, size={}", fileId, data.length);
+                return data;
             }
         } catch (Exception e) {
             log.error("action=download_file_failed, file_id={}, error={}", fileId, e.getMessage());
             return null;
+        }
+    }
+
+    public void sendPhotoBytes(Long chatId, byte[] data, String caption) {
+        try {
+            SendPhoto request = new SendPhoto(chatId, data)
+                    .caption(caption)
+                    .parseMode(ParseMode.HTML);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=photo_bytes_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_photo_bytes_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_photo_bytes_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendVideoBytes(Long chatId, byte[] data, String caption) {
+        try {
+            SendVideo request = new SendVideo(chatId, data)
+                    .caption(caption)
+                    .parseMode(ParseMode.HTML);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=video_bytes_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_video_bytes_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_video_bytes_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendVideoNoteBytes(Long chatId, byte[] data) {
+        try {
+            SendVideoNote request = new SendVideoNote(chatId, data);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=video_note_bytes_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_video_note_bytes_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_video_note_bytes_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendAnimationBytes(Long chatId, byte[] data, String caption) {
+        try {
+            SendAnimation request = new SendAnimation(chatId, data)
+                    .caption(caption)
+                    .parseMode(ParseMode.HTML);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=animation_bytes_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_animation_bytes_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_animation_bytes_failed, chat_id={}, error={}", chatId, e.getMessage());
+        }
+    }
+
+    public void sendDocumentBytes(Long chatId, byte[] data, String caption, String filename) {
+        try {
+            SendDocument request = new SendDocument(chatId, data)
+                    .caption(caption)
+                    .parseMode(ParseMode.HTML)
+                    .fileName(filename);
+
+            SendResponse response = bot.execute(request);
+            if (response.isOk()) {
+                log.debug("action=document_bytes_sent, chat_id={}", chatId);
+            } else {
+                log.error("action=send_document_bytes_failed, chat_id={}, error={}", chatId, response.description());
+            }
+        } catch (Exception e) {
+            log.error("action=send_document_bytes_failed, chat_id={}, error={}", chatId, e.getMessage());
         }
     }
 }

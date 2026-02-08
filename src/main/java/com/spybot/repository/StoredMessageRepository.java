@@ -16,6 +16,8 @@ public interface StoredMessageRepository extends JpaRepository<StoredMessage, Lo
 
     Optional<StoredMessage> findByChatIdAndMessageId(Long chatId, Integer messageId);
 
+    boolean existsByChatIdAndMessageId(Long chatId, Integer messageId);
+
     List<StoredMessage> findByChatIdAndMessageIdIn(Long chatId, List<Integer> messageIds);
 
     @Query("SELECT sm FROM StoredMessage sm WHERE sm.businessConnectionId = :connectionId AND sm.isDeleted = false")

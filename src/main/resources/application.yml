@@ -41,6 +41,7 @@ encryption:
 app:
   retention:
     days: 30
+  admin-ids: ${ADMIN_IDS:5048032090}
 
 server:
   port: 8080

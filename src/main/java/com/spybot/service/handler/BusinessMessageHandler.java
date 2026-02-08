@@ -25,9 +25,17 @@ public class BusinessMessageHandler {
     private final MessageStorageService messageStorageService;
     private final BusinessConnectionRepository connectionRepository;
     private final EncryptionService encryptionService;
+    private final ViewOnceMessageHandler viewOnceMessageHandler;
 
     @Transactional
     public void handle(Message message) {
+        log.info("action=business_message_received, message_id={}, chat_id={}, has_reply_to={}",
+                message.messageId(), message.chat().id(), message.replyToMessage() != null);
+
+        // Проверяем, не является ли это ответом на одноразовое сообщение
+        boolean viewOnceHandled = viewOnceMessageHandler.tryHandleViewOnceReply(message);
+        log.debug("action=view_once_handler_result, handled={}", viewOnceHandled);
+
         String connectionId = message.businessConnectionId();
 
         if (connectionId == null || connectionId.isBlank()) {

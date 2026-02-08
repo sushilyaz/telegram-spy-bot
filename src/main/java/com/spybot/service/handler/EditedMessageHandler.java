@@ -37,10 +37,13 @@ public class EditedMessageHandler {
         Long chatId = editedMessage.chat().id();
         Integer messageId = editedMessage.messageId();
 
-        if (!connectionRepository.existsByConnectionIdAndIsEnabledTrue(connectionId)) {
+        var connectionOpt = connectionRepository.findByConnectionId(connectionId);
+        if (connectionOpt.isEmpty() || !connectionOpt.get().getIsEnabled()) {
             log.debug("action=skip_edit, reason=connection_disabled, connection_id={}", connectionId);
             return;
         }
+
+        Long ownerId = connectionOpt.get().getUserId();
 
         StoredMessage storedMessage = messageRepository
                 .findByChatIdAndMessageId(chatId, messageId)
@@ -48,6 +51,12 @@ public class EditedMessageHandler {
 
         if (storedMessage == null) {
             log.warn("action=edit_original_not_found, chat_id={}, message_id={}", chatId, messageId);
+            return;
+        }
+
+        // Пропускаем свои собственные сообщения
+        if (storedMessage.getFromUserId().equals(ownerId)) {
+            log.debug("action=skip_edit_own_message, chat_id={}, message_id={}", chatId, messageId);
             return;
         }
 
