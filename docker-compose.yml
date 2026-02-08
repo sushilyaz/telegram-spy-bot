@@ -1,5 +1,8 @@
 version: '3.8'
 
+# Запускает только PostgreSQL для локальной разработки
+# Приложение запускается отдельно из IDE: ./gradlew bootRun
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -8,9 +11,9 @@ services:
     environment:
       POSTGRES_DB: spybot
       POSTGRES_USER: spybot
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-devpassword}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
