@@ -11,8 +11,10 @@ import com.spybot.service.handler.DeletedMessageHandler;
 import com.spybot.service.handler.EditedMessageHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -25,9 +27,26 @@ public class UpdateDispatcherService {
     private final DeletedMessageHandler deletedMessageHandler;
     private final CommandHandler commandHandler;
 
-    @Async("telegramExecutor")
+    // Защита от дублирования обработки update
+    private final Set<Integer> processedUpdateIds = ConcurrentHashMap.newKeySet();
+    private static final int MAX_PROCESSED_IDS = 10000;
+
     public void dispatch(Update update) {
-        log.debug("action=dispatch_update, update_id={}", update.updateId());
+        int updateId = update.updateId();
+
+        // Проверка на дублирование
+        if (!processedUpdateIds.add(updateId)) {
+            log.debug("action=skip_duplicate_update, update_id={}", updateId);
+            return;
+        }
+
+        // Очистка старых ID для предотвращения утечки памяти
+        if (processedUpdateIds.size() > MAX_PROCESSED_IDS) {
+            processedUpdateIds.clear();
+            processedUpdateIds.add(updateId);
+        }
+
+        log.debug("action=dispatch_update, update_id={}", updateId);
 
         try {
             BusinessConnection businessConnection = update.businessConnection();
@@ -60,7 +79,7 @@ public class UpdateDispatcherService {
             }
         } catch (Exception e) {
             log.error("action=dispatch_failed, update_id={}, error={}",
-                    update.updateId(), e.getMessage(), e);
+                    updateId, e.getMessage(), e);
         }
     }
 

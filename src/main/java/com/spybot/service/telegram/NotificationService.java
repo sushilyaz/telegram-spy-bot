@@ -5,7 +5,7 @@ import com.spybot.domain.entity.StoredMessage;
 import com.spybot.domain.enums.MediaType;
 import com.spybot.repository.BusinessConnectionRepository;
 import com.spybot.service.encryption.EncryptionService;
-import com.spybot.service.i18n.MessageSource;
+import com.spybot.service.i18n.I18nService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -18,7 +18,7 @@ public class NotificationService {
 
     private final BusinessConnectionRepository connectionRepository;
     private final EncryptionService encryptionService;
-    private final MessageSource messages;
+    private final I18nService messages;
 
     private TelegramBotService botService;
 

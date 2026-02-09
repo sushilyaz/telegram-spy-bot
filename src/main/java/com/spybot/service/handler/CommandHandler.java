@@ -1,7 +1,7 @@
 package com.spybot.service.handler;
 
 import com.pengrad.telegrambot.model.Message;
-import com.spybot.service.i18n.MessageSource;
+import com.spybot.service.i18n.I18nService;
 import com.spybot.service.telegram.TelegramBotService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CommandHandler {
 
-    private final MessageSource messages;
+    private final I18nService messages;
 
     private TelegramBotService botService;
 
