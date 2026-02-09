@@ -5,6 +5,7 @@ import com.spybot.domain.entity.StoredMessage;
 import com.spybot.domain.enums.MediaType;
 import com.spybot.repository.BusinessConnectionRepository;
 import com.spybot.service.encryption.EncryptionService;
+import com.spybot.service.i18n.MessageSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -17,6 +18,7 @@ public class NotificationService {
 
     private final BusinessConnectionRepository connectionRepository;
     private final EncryptionService encryptionService;
+    private final MessageSource messages;
 
     private TelegramBotService botService;
 
@@ -25,10 +27,10 @@ public class NotificationService {
     }
 
     @Async("notificationExecutor")
-    public void sendConnectionNotification(Long chatId, boolean connected) {
+    public void sendConnectionNotification(Long chatId, boolean connected, String langCode) {
         String message = connected
-                ? "✅ <b>Бот подключен</b>\n\nТеперь я буду отслеживать изменения и удаления сообщений в выбранных чатах."
-                : "❌ <b>Бот отключен</b>\n\nОтслеживание сообщений прекращено.";
+                ? messages.get("connection.enabled", langCode)
+                : messages.get("connection.disabled", langCode);
 
         botService.sendTextMessage(chatId, message);
         log.info("action=connection_notification_sent, chat_id={}, connected={}", chatId, connected);
@@ -42,30 +44,37 @@ public class NotificationService {
             return;
         }
 
+        // Default to Russian for now (can be extended to store user language preference)
+        String langCode = "ru";
+
         String senderName = formatSenderName(storedMessage);
         String decryptedText = encryptionService.decrypt(storedMessage.getEncryptedText());
         String decryptedCaption = encryptionService.decrypt(storedMessage.getEncryptedCaption());
 
         StringBuilder notification = new StringBuilder();
-        notification.append("🗑 <b>Сообщение удалено</b>\n\n");
-        notification.append("👤 <b>От:</b> ").append(escapeHtml(senderName)).append("\n");
+        notification.append(messages.get("notify.deleted", langCode)).append("\n\n");
+        notification.append(messages.get("notify.from", langCode)).append(" ").append(escapeHtml(senderName)).append("\n");
 
         if (decryptedText != null && !decryptedText.isEmpty()) {
-            notification.append("📝 <b>Текст:</b>\n").append(escapeHtml(truncateText(decryptedText))).append("\n");
+            notification.append(messages.get("notify.text", langCode)).append("\n")
+                    .append(escapeHtml(truncateText(decryptedText))).append("\n");
         }
 
         if (storedMessage.getMediaType() != MediaType.NONE) {
-            notification.append("📎 <b>Тип медиа:</b> ").append(getMediaTypeName(storedMessage.getMediaType())).append("\n");
+            notification.append(messages.get("notify.media_type", langCode)).append(" ")
+                    .append(getMediaTypeName(storedMessage.getMediaType(), langCode)).append("\n");
 
             if (decryptedCaption != null && !decryptedCaption.isEmpty()) {
-                notification.append("💬 <b>Подпись:</b> ").append(escapeHtml(truncateText(decryptedCaption))).append("\n");
+                notification.append(messages.get("notify.caption", langCode)).append(" ")
+                        .append(escapeHtml(truncateText(decryptedCaption))).append("\n");
             }
         }
 
         botService.sendTextMessage(connection.getUserChatId(), notification.toString());
 
         if (storedMessage.getMediaFileId() != null && storedMessage.getMediaType() != MediaType.NONE) {
-            sendMediaNotification(connection.getUserChatId(), storedMessage, "🗑 Удалённое медиа от " + senderName);
+            String mediaCaption = messages.get("notify.deleted_media", langCode, senderName);
+            sendMediaNotification(connection.getUserChatId(), storedMessage, mediaCaption);
         }
 
         log.info("action=delete_notification_sent, connection_id={}, user_chat_id={}",
@@ -82,27 +91,34 @@ public class NotificationService {
             return;
         }
 
+        String langCode = "ru";
         String senderName = formatSenderName(storedMessage);
+        String emptyText = messages.get("notify.empty", langCode);
 
         StringBuilder notification = new StringBuilder();
-        notification.append("✏️ <b>Сообщение изменено</b>\n\n");
-        notification.append("👤 <b>От:</b> ").append(escapeHtml(senderName)).append("\n\n");
+        notification.append(messages.get("notify.edited", langCode)).append("\n\n");
+        notification.append(messages.get("notify.from", langCode)).append(" ").append(escapeHtml(senderName)).append("\n\n");
 
         boolean hasTextChange = !equalsNullSafe(oldText, newText);
         boolean hasCaptionChange = !equalsNullSafe(oldCaption, newCaption);
 
         if (hasTextChange) {
-            notification.append("📝 <b>Было:</b>\n").append(escapeHtml(truncateText(oldText != null ? oldText : "(пусто)"))).append("\n\n");
-            notification.append("📝 <b>Стало:</b>\n").append(escapeHtml(truncateText(newText != null ? newText : "(пусто)"))).append("\n");
+            notification.append(messages.get("notify.was", langCode)).append("\n")
+                    .append(escapeHtml(truncateText(oldText != null ? oldText : emptyText))).append("\n\n");
+            notification.append(messages.get("notify.became", langCode)).append("\n")
+                    .append(escapeHtml(truncateText(newText != null ? newText : emptyText))).append("\n");
         }
 
         if (hasCaptionChange) {
-            notification.append("\n💬 <b>Подпись была:</b>\n").append(escapeHtml(truncateText(oldCaption != null ? oldCaption : "(пусто)"))).append("\n\n");
-            notification.append("💬 <b>Подпись стала:</b>\n").append(escapeHtml(truncateText(newCaption != null ? newCaption : "(пусто)"))).append("\n");
+            notification.append("\n").append(messages.get("notify.caption_was", langCode)).append("\n")
+                    .append(escapeHtml(truncateText(oldCaption != null ? oldCaption : emptyText))).append("\n\n");
+            notification.append(messages.get("notify.caption_became", langCode)).append("\n")
+                    .append(escapeHtml(truncateText(newCaption != null ? newCaption : emptyText))).append("\n");
         }
 
         if (storedMessage.getMediaType() != MediaType.NONE) {
-            notification.append("\n📎 <b>Тип медиа:</b> ").append(getMediaTypeName(storedMessage.getMediaType()));
+            notification.append("\n").append(messages.get("notify.media_type", langCode)).append(" ")
+                    .append(getMediaTypeName(storedMessage.getMediaType(), langCode));
         }
 
         botService.sendTextMessage(connection.getUserChatId(), notification.toString());
@@ -142,16 +158,16 @@ public class NotificationService {
         return name.isEmpty() ? "Unknown" : name.toString();
     }
 
-    private String getMediaTypeName(MediaType type) {
+    private String getMediaTypeName(MediaType type, String langCode) {
         return switch (type) {
-            case PHOTO -> "Фото";
-            case VIDEO -> "Видео";
-            case DOCUMENT -> "Документ";
-            case VOICE -> "Голосовое сообщение";
-            case VIDEO_NOTE -> "Видеосообщение";
-            case AUDIO -> "Аудио";
-            case STICKER -> "Стикер";
-            case ANIMATION -> "GIF";
+            case PHOTO -> messages.get("media.photo", langCode);
+            case VIDEO -> messages.get("media.video", langCode);
+            case DOCUMENT -> messages.get("media.document", langCode);
+            case VOICE -> messages.get("media.voice", langCode);
+            case VIDEO_NOTE -> messages.get("media.video_note", langCode);
+            case AUDIO -> messages.get("media.audio", langCode);
+            case STICKER -> messages.get("media.sticker", langCode);
+            case ANIMATION -> messages.get("media.animation", langCode);
             case NONE -> "";
         };
     }

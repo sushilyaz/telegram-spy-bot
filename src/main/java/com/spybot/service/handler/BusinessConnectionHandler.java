@@ -61,10 +61,11 @@ public class BusinessConnectionHandler {
                     connectionId, user.id());
         }
 
+        String langCode = user.languageCode() != null ? user.languageCode() : "en";
         if (isEnabled) {
-            notificationService.sendConnectionNotification(connection.userChatId(), true);
+            notificationService.sendConnectionNotification(connection.userChatId(), true, langCode);
         } else {
-            notificationService.sendConnectionNotification(connection.userChatId(), false);
+            notificationService.sendConnectionNotification(connection.userChatId(), false, langCode);
         }
     }
 }
